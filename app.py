@@ -221,7 +221,25 @@ def verify_payment():
     _send_wa_customer(data); _send_wa_canteen(data)
     return jsonify({"status":"success","order_id":data["razorpay_order_id"]})
 
+@app.route("/place-cash-order", methods=["POST"])
+def place_cash_order():
+    data = request.json
+    import random
+    order_id = f"FB{random.randint(10000,99999)}"
 
+    conn = get_db(); cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO orders (order_id, payment_id, name, phone, items, total, token_type, status) VALUES (%s,%s,%s,%s,%s,%s,%s,'new')",
+        (order_id, "CASH", data["name"], data["phone"],
+         psycopg2.extras.Json(data["items"]),
+         data["total"], data["token_type"])
+    )
+    conn.commit(); cur.close(); conn.close()
+
+    _send_wa_customer({**data, "razorpay_order_id": order_id})
+    _send_wa_canteen({**data, "razorpay_order_id": order_id})
+
+    return jsonify({"status": "success", "order_id": order_id})
 # ══════════════════════════════════════════════════════════════════════════════
 #  WHATSAPP
 # ══════════════════════════════════════════════════════════════════════════════
