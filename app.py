@@ -275,7 +275,6 @@ def cancel_order(order_id):
 
 @app.route("/")
 def index(): return jsonify({"status":"Foody Buddy API running!"})
-
+init_db()
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
