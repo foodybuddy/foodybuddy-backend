@@ -247,14 +247,16 @@ def place_cash_order():
 
 def _send_wa_customer(data):
     items="\n".join([f"  {i['name']} x{i['qty']} — ₹{i['price']*i['qty']}" for i in data["items"]])
+    token_type = data.get("token_type") or data.get("tokenType", "dine-in")
     twilio_client.messages.create(
-        body=f"Hi {data['name']}! Your order is confirmed.\n\nOrder: {data['razorpay_order_id']}\n{items}\n\nTotal: ₹{data['total']}\nType: {data['token_type'].title()}\n\nWe'll notify you when it's ready.",
+        body=f"Hi {data['name']}! Your order is confirmed.\n\nOrder: {data['razorpay_order_id']}\n{items}\n\nTotal: ₹{data['total']}\nType: {token_type.title()}\n\nWe'll notify you when it's ready.",
         from_=TWILIO_NUMBER, to=f"whatsapp:+91{data['phone']}")
 
 def _send_wa_canteen(data):
     items="\n".join([f"  {i['name']} x{i['qty']}" for i in data["items"]])
+    token_type = data.get("token_type") or data.get("tokenType", "dine-in")
     twilio_client.messages.create(
-        body=f"New Order\nID: {data['razorpay_order_id']}\nFrom: {data['name']} ({data['token_type'].title()})\n{items}\nTotal: ₹{data['total']}",
+        body=f"New Order\nID: {data['razorpay_order_id']}\nFrom: {data['name']} ({token_type.title()})\n{items}\nTotal: ₹{data['total']}",
         from_=TWILIO_NUMBER, to=CANTEEN_NUMBER)
 
 
